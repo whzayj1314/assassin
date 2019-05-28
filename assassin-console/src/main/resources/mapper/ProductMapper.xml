@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+  ~ Copyright (c) 2019-2029, Barton Wu (396264893@qq.com)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.assassinx.assassin.console.mapper.ProductMapper">
+
+    <select id="selectProductByClientId" resultType="cn.assassinx.assassin.console.entity.Product">
+        SELECT
+	    a.*
+        FROM
+	    product a
+	    JOIN oauth_client_details b ON a.product_id = b.product_id
+	    WHERE b.client_id = #{clientId} AND a.del_flag ='0'
+    </select>
+
+    <select id="selectMutexRuleVOByProductId" resultType="cn.assassinx.assassin.console.vo.MutexRuleVO">
+        SELECT CONCAT(a.client_id,',',b.client_id) AS `key`,
+        CONCAT(a.client_id,' VS ',b.client_id) AS title,
+        CASE WHEN INSTR(c.mutex_rules,CONCAT(a.client_id,',',b.client_id)) &gt; 0
+        THEN '1'
+        ELSE '0'
+        END AS checked
+        FROM oauth_client_details a
+        JOIN oauth_client_details b ON  a.client_id &lt; b.client_id
+        JOIN product c ON a.product_id = c.product_id AND b.product_id = c.product_id AND c.del_flag = '0'
+        WHERE c.product_id = #{productId}
+    </select>
+</mapper>

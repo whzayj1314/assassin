@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019-2029, Barton Wu (396264893@qq.com)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.assassinx.assassin.console.mapper.RoleMapper">
+
+    <select id="selectInnerRolePageVO" resultType="cn.assassinx.assassin.console.vo.RoleVO">
+        SELECT
+        a.*,
+        b.product_name
+        FROM
+        role a
+        JOIN product b ON a.product_id = b.product_id AND b.del_flag ='0' AND b.product_type = '0'
+        WHERE a.del_flag ='0'
+        <if test="role.productId!=null and role.productId != ''">
+            AND a.product_id = #{role.productId}
+        </if>
+        <if test="role.roleName!=null and role.roleName != ''">
+            AND a.role_name LIKE CONCAT('%',#{role.roleName},'%')
+        </if>
+    </select>
+
+    <select id="selectInnerRoleTransferVOList" resultType="cn.assassinx.assassin.console.vo.TransferVO">
+        SELECT
+        a.role_id AS `key`,
+        a.role_name AS title,
+        b.product_name AS description
+        FROM
+        role a
+        JOIN product b ON a.product_id = b.product_id AND b.del_flag = '0' AND b.product_type = '0'
+        WHERE a.del_flag = '0'
+    </select>
+
+    <select id="selectRoleIdsByUserId" resultType="java.lang.String">
+        SELECT
+	      a.role_id
+        FROM
+	    role a
+	    JOIN user_role b ON a.role_id = b.role_id
+	    JOIN product c ON a.product_id = c.product_id AND c.del_flag = '0' AND c.product_type = '0'
+	    AND a.del_flag = '0' AND b.user_id = #{userId}
+    </select>
+</mapper>

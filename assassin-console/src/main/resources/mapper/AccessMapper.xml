@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+  ~ Copyright (c) 2019-2029, Barton Wu (396264893@qq.com)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.assassinx.assassin.console.mapper.AccessMapper">
+
+    <select id="selectAccessByProductIdAndAccount" resultType="java.lang.String">
+        SELECT
+	      a.access_alias
+        FROM
+	    access a
+	    JOIN role_access b ON a.access_id = b.access_id
+	    JOIN role c ON b.role_id = c.role_id AND c.del_flag != '1'
+	    JOIN user_role d ON c.role_id = d.role_id
+	    JOIN `user` e ON d.user_id = e.user_id AND e.del_flag != '1'
+	    JOIN product f ON c.product_id = f.product_id AND f.del_flag != '1'
+	    WHERE e.account = #{account}
+	    AND f.product_id = #{productId}
+	    AND a.del_flag != '1'
+    </select>
+
+    <select id="selectTenantAccessByProductIdAndAccount" resultType="java.lang.String">
+       	SELECT
+		  CONCAT(f.tenant_id,'_',a.access_alias)
+		FROM
+		access a
+		JOIN role_access b ON a.access_id = b.access_id
+		JOIN role c ON b.role_id = c.role_id AND c.del_flag != '1'
+		JOIN user_role d ON c.role_id = d.role_id
+		JOIN `user` e ON d.user_id = e.user_id AND e.del_flag != '1'
+		JOIN tenant_user f ON e.user_id = f.user_id AND f.tenant_id = c.tenant_id
+		JOIN product g ON c.product_id = g.product_id AND g.del_flag != '1'
+		WHERE e.account = #{account}
+		AND g.product_id = #{productId}
+		AND a.del_flag != '1'
+    </select>
+
+    <select id="tree" parameterType="cn.assassinx.assassin.console.entity.Access"
+            resultType="cn.assassinx.assassin.console.vo.AccessVO">
+        SELECT
+        a.*,
+        b.product_name
+        FROM
+        access a
+        JOIN product b ON a.product_id = b.product_id and b.del_flag != '1'
+        WHERE a.del_flag != '1'
+        <if test="accessName!=null and accessName != ''">
+            AND a.access_name LIKE CONCAT('%',#{accessName},'%')
+        </if>
+        <if test="accessType!=null and accessType != ''">
+            AND a.access_type = #{accessType}
+        </if>
+        <if test="productId!=null and productId != ''">
+            AND a.product_id = #{productId}
+        </if>
+        <if test="accessId!=null and accessId != ''">
+            AND a.access_id != #{accessId}
+        </if>
+    </select>
+
+    <select id="selectAssassinMenuVO" resultType="cn.assassinx.assassin.console.vo.MenuVO">
+        SELECT
+        DISTINCT(a.access_id) AS id,
+        a.uri AS path,
+        a.access_name AS name,
+        a.parent_id AS parentId,
+        icon AS icon,
+        CASE WHEN parent_id IS NULL
+        THEN 0
+        ELSE 1
+        END AS exact
+        FROM access a
+        JOIN role_access b ON a.access_id = b.access_id
+        JOIN role c ON b.role_id = c.role_id AND c.del_flag = '0'
+        JOIN user_role d ON c.role_id = d.role_id
+        JOIN `user` e ON d.user_id = e.user_id AND e.del_flag = '0'
+        WHERE a.del_flag = '0'
+        AND a.product_id = #{productId}
+        <if test="userId!=null and userId != ''">
+            AND e.user_id = #{userId}
+        </if>
+        <if test="accessType!=null and accessType != ''">
+            AND a.access_type = #{accessType}
+        </if>
+        <if test="accessIds!=null">
+            AND a.access_id IN
+            <foreach collection="accessIds" item="accessId" open="(" separator="," close=")">
+                #{accessId}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>
+

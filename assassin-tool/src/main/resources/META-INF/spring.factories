@@ -1,0 +1,6 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  cn.assassinx.assassin.tool.minio.config.MinioProperties,\
+  cn.assassinx.assassin.tool.minio.config.MinioConfig,\
+  cn.assassinx.assassin.tool.minio.service.impl.MinioServiceImpl,\
+  cn.assassinx.assassin.tool.minio.repository.MinioRepository,\
+  cn.assassinx.assassin.tool.minio.endpoint.MinioEndpoint

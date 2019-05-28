@@ -1,0 +1,7 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  cn.assassinx.assassin.client.config.IgnoreUrlProperties,\
+  cn.assassinx.assassin.client.config.RedisConfig,\
+  cn.assassinx.assassin.client.config.JwtConfig,\
+  cn.assassinx.assassin.client.config.Access,\
+  cn.assassinx.assassin.client.exception.ClientExceptionAdvice,\
+  cn.assassinx.assassin.client.util.AssassinContextHolder

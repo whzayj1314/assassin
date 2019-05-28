@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+  ~ Copyright (c) 2019-2029, Barton Wu (396264893@qq.com)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.assassinx.assassin.console.mapper.UserMapper">
+
+    <select id="selectUserVoByClientIdAndAccount" resultType="cn.assassinx.assassin.console.vo.UserVO">
+	    SELECT
+	      c.*,
+		  GROUP_CONCAT(DISTINCT(a.role_name)) AS role_name
+		FROM
+		role a
+		JOIN user_role b ON a.role_id = b.role_id
+	    JOIN `user` c ON b.user_id = c.user_id AND c.del_flag = '0'
+		JOIN product d ON a.product_id = d.product_id AND d.del_flag = '0'
+	    JOIN oauth_client_details e ON d.product_id = e.product_id
+		WHERE c.account = #{account}
+		AND e.client_id = #{clientId}
+		AND a.del_flag = '0'
+		GROUP BY c.user_id,d.product_id
+    </select>
+
+    <select id="selectCountUserRoleByProductIdAndAccount" resultType="int">
+	    SELECT
+	       count(*)
+		FROM
+		`user` a
+		JOIN user_role b ON a.user_id = b.user_id
+	    JOIN role c ON b.role_id = c.role_id AND c.del_flag = '0'
+		JOIN product d ON c.product_id = d.product_id AND d.del_flag = '0'
+		WHERE a.account = #{account}
+		AND d.product_id = #{productId}
+		AND a.del_flag = '0'
+    </select>
+
+</mapper>
